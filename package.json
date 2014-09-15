@@ -16,6 +16,7 @@
     "binary-csv": "^0.2.2",
     "buffer": "^2.5.0",
     "concat-stream": "^1.4.6",
+    "es6-promise": "^1.0.0",
     "github-api": "^0.7.0",
     "lodash": "^2.4.1",
     "mapbox.js": "^2.1.0",
@@ -25,12 +26,12 @@
   },
   "devDependencies": {
     "browserify": "^5.11.0",
-    "gulp": "~3.5.6",
+    "gulp": "~3.8.6",
     "gulp-concat": "^2.3.4",
-    "gulp-sass": "~0.4.0",
+    "gulp-sass": "~0.7.3",
     "gulp-uglify": "^1.0.1",
-    "node-bourbon": "1.0.0",
-    "reactify": "~0.5.1",
+    "node-bourbon": "1.2.3",
+    "reactify": "~0.14.0",
     "vinyl-transform": "0.0.1"
   },
   "engines": {

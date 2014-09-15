@@ -14,6 +14,7 @@ var user = require('../models/user')
 var csv = './data/sample.data.csv';
 
 module.exports = React.createClass({
+  displayName: 'TableComponent',
 
   mixins: [auth],
 
@@ -21,7 +22,8 @@ module.exports = React.createClass({
     return {
       csv_data: [],
       editing: false,
-      instance: {}
+      instance: {},
+      loggedIn: !!localStorage.token
     };
   },
   componentWillMount: function() {
@@ -41,9 +43,7 @@ module.exports = React.createClass({
       self.setState({csv_data: rows})
     }
   },
-  componentDidMount: function() {
 
-  },
   componentWillUpdate: function(nextProps, nextState) {
     if(nextState.csv_data) {
       var $container = $('#handsontable')
@@ -56,74 +56,48 @@ module.exports = React.createClass({
       });
     }
   },
+
+  // make instance
   componentDidUpdate: function(prevProps, prevState) {
     if(Object.keys(prevState.instance).length === 0) {
       var instance = $("#handsontable").handsontable('getInstance');
       this.setState({instance: instance})
     }
   },
+
   edit: function(e) {
     var self = this;
     this.setState({editing: true})
-
-    // hello.login('github')
-    // hello.on('auth.login', function(r) {
-    //   console.log('auth.login', r);
-    //   var github = new Github({
-    //     token: r.authResponse.access_token,
-    //     auth: 'oauth'
-    //   });
-    //   window.github = github
-    //   self.setState({ github: github})
-    // })
   },
   cancel: function(e) {
     console.log('on cancel')
     this.setState({editing: false})
   },
   save: function(e) {
-    var self = this;
-    console.log(helper.string(this.state.instance))
     this.setState({editing: false})
+    var editedData = helper.string(this.state.instance)
 
-    // function getRepo(user) {
-    //   var repo = self.state.github.getRepo(user.login, 'csviz')
-    //   console.log('repo', repo)
-    //   repo.getTree('master?recursive=true', function(err, tree) {
-    //     console.log('tree', tree)
+    var github = new Github({
+      token: user.attrs.github.accessToken,
+      auth: 'oauth'
+    });
 
-    //   });
-    //   repo.write('master', 'helloworld.md', 'Hello world from csviz!', 'Update CSV file from CSViz.', function(err) {});
+    this.setState({github: github})
 
-    // }
-
-    // if (Object.keys(this.state.user).length > 0) {
-    //   getRepo(this.state.user)
-    // } else {
-    //   this.state.github.getUser().show(null, function(err, data) {
-    //     self.setState({user: data});
-    //     getRepo(data)
-    //   })
-    // }
-
+    var repo = github.getRepo(user.attrs.github.login, 'csviz')
+    // need to define the path of the data
+    repo.write('master', 'test.csv', editedData, 'Update CSV file from CSViz.', function(err) {
+      console.log('err', err)
+      console.log('write data success')
+    });
 
   },
   render: function() {
-    var rows = this.state.csv_data.map(function (data, i) {
-      return <tr key={i}><td>{data.Country}</td><td>{data.Indicator}</td></tr>;
-    });
-    // <div className={this.state.editing ? '' : 'hidden'}>
-    //   <button onClick={this.cancel}>Cancel</button>
-    //   <button onClick={this.save}>Save</button>
-    // </div>
-    // <div className={this.state.editing ? 'hidden' : ''}>
-    //   <button onClick={this.edit}>Edit</button>
-    // </div>
     return (
       <div className="container">
         <div className="controls">
           <button onClick={this.save}>Save</button>
-          <a href="http://127.0.0.1:3000/token" >Edit</a>
+          <a href="http://csviz.dev.wiredcraft.com/token">Edit</a>
         </div>
         <div id='handsontable'></div>
       </div>
