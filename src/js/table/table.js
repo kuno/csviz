@@ -13,7 +13,7 @@ var user = require('../models/user')
 
 var config = require('../../../config.json');
 var csv = config.csv;
-var csv_path = config.git.csv_git;
+var csv_path = config.git.csv_path;
 var commit_message = config.git.commit_message;
 
 module.exports = React.createClass({
@@ -32,7 +32,7 @@ module.exports = React.createClass({
     function csv_response(err, resp, data) {
       if (err) throw err
       var buff = new Buffer(new Uint8Array(data))
-      var parser = bcsv({json: true})
+      var parser = bcsv({json: true, separator: ';'})
       parser.pipe(concat(render.bind(this)))
       parser.write(buff)
       parser.end()
@@ -71,9 +71,9 @@ module.exports = React.createClass({
 
     // need to define the path of the data
     repo.write('master', csv_path, editedData, commit_message, function(err) {
-      if(err) console.log('err', err)
-      console.log('write data success')
       this.setState({loading: false})
+      if(err) return console.log('err', err)
+      console.log('write data success')
     }.bind(this));
   },
 
