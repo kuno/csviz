@@ -34,6 +34,7 @@ var App = React.createClass({
   getInitialState: function() {
     return {
       repo: {},
+      meta: {},
       isTableActive: null,
       loggedIn: false
     };
@@ -48,13 +49,14 @@ var App = React.createClass({
   },
 
   componentWillMount: function() {
-    xhr({ responseType: 'json', url: META}, meta_response.bind(this))
+    xhr({ responseType: 'json', url: META, timeout: 100 * 1000}, meta_response.bind(this))
 
     function meta_response(err, resp, meta) {
       // get repo meta meta
       github.getPublicRepo(meta.owner, meta.repo, function(err, data) {
         if(err) console.log('get repo meta err', err)
         this.setState({
+          meta: meta,
           repo: data
         })
       }.bind(this))
@@ -111,7 +113,7 @@ var App = React.createClass({
           </nav>
         </header>
 
-        <this.props.activeRouteHandler loggedIn={this.state.loggedIn} />
+        <this.props.activeRouteHandler meta={this.state.meta} loggedIn={this.state.loggedIn} />
       </div>
     );
   }

@@ -16,6 +16,9 @@ var csv = config.csv;
 var csv_path = config.git.csv_path;
 var commit_message = config.git.commit_message;
 
+// trim the last spare rows
+var SPAREROWS = 5;
+
 module.exports = React.createClass({
   displayName: 'TableComponent',
 
@@ -28,7 +31,7 @@ module.exports = React.createClass({
 
   componentWillMount: function() {
     // load csv data
-    xhr({ responseType: 'arraybuffer', url: csv}, csv_response.bind(this))
+    xhr({ responseType: 'arraybuffer', url: csv, timeout: 100 * 1000}, csv_response.bind(this))
     function csv_response(err, resp, data) {
       if (err) throw err
       var buff = new Buffer(new Uint8Array(data))
@@ -50,7 +53,7 @@ module.exports = React.createClass({
       $container.handsontable({
         data: nextState.csv_data,
         colHeaders: colHeaders,
-        minSpareRows: 5,
+        minSpareRows: SPAREROWS || 5,
         minSpareCols: 3
       });
     }
@@ -60,14 +63,14 @@ module.exports = React.createClass({
   save: function(e) {
     this.setState({loading: true})
     var table = $("#handsontable").handsontable('getInstance')
-    var editedData = helper.string(table)
+    var editedData = helper.string(table, SPAREROWS)
 
     var github = new Github({
       token: user.attrs.github.accessToken,
       auth: 'oauth'
     });
 
-    var repo = github.getRepo(user.attrs.github.login, 'csviz')
+    var repo = github.getRepo(user.attrs.github.login, this.props.meta.repo || 'csviz')
 
     // need to define the path of the data
     repo.write('master', csv_path, editedData, commit_message, function(err) {

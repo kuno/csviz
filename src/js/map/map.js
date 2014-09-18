@@ -36,8 +36,8 @@ module.exports = React.createClass({
 
   componentWillMount: function() {
     var self = this;
-    xhr({ responseType: 'arraybuffer', url: csv}, csv_response)
-    xhr({ responseType: 'json', url: geo}, geo_response)
+    xhr({ responseType: 'arraybuffer', url: csv, timeout: 100 * 1000}, csv_response)
+    xhr({ responseType: 'json', url: geo, timeout: 100 * 1000}, geo_response)
 
     /**
      * save geo response
